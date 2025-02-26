@@ -13,7 +13,7 @@ Steps from: [Docker Documentation](https://docs.docker.com/engine/install/ubuntu
 2. Install required packages:
 
    ```sh
-   sudo apt-get install ca-certificates curl
+   sudo apt install -y ca-certificates curl gnupg
    ```
 
 3. Add Docker's official GPG key:
@@ -31,13 +31,13 @@ Steps from: [Docker Documentation](https://docs.docker.com/engine/install/ubuntu
    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
    $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-   sudo apt-get update
+   sudo apt update
    ```
 
 ### Install the Docker packages
 
 ```sh
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
 # FastAPI in Containers - Docker
@@ -46,7 +46,13 @@ Steps from: [FastAPI Documentation](https://fastapi.tiangolo.com/deployment/dock
 
 ### Build and Run FastAPI with Docker
 
-1. Build docker image, pull postgres, create network and run docker into the same network:
+1. Build and run containers using Docker Compose:
+
+   ```sh
+   sudo docker compose up -d
+   ```
+
+   (Optional) When docker-compose.yml is missing:
 
    ```sh
    sudo docker build -t fastapi .
@@ -94,4 +100,16 @@ Steps from: [FastAPI Documentation](https://fastapi.tiangolo.com/deployment/dock
 
   ```sh
   sudo docker rmi <image_id>
+  ```
+
+- Start docker compose:
+
+  ```sh
+  sudo docker compose start
+  ```
+
+- Stop docker compose:
+
+  ```sh
+  sudo docker compose stop
   ```

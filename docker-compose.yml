@@ -11,16 +11,32 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - net-fastapi
+      - fastapi
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
 
   fastapi:
-    image: fastapi
+    build: .
     container_name: fastapi
     ports:
       - "80:80"
     networks:
-      - net-fastapi
+      - fastapi
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
 
 networks:
-  net-fastapi:
+  fastapi:
     driver: bridge
+
+volumes:
+  postgres_data:
+    # This is a named volume used by the postgres service to persist data
