@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - net-fastapi
+
+  fastapi:
+    image: fastapi
+    container_name: fastapi
+    ports:
+      - "80:80"
+    networks:
+      - net-fastapi
+
+networks:
+  net-fastapi:
+    driver: bridge
