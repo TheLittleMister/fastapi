@@ -1,6 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from sqlmodel import select
-from dependencies import SessionDep
+from dependencies import SessionDep, get_current_user
 from cart.models import Cart, CartModel, CartChange, CartDelete
 from products.models import Product
 from users.models import User
@@ -9,7 +9,11 @@ router = APIRouter()
 
 
 @router.post("/cart/", tags=["cart"])
-async def add_to_cart(cart_item: CartModel, session: SessionDep):
+async def add_to_cart(
+    cart_item: CartModel,
+    session: SessionDep,
+    current_user: User = Depends(get_current_user),
+):
     existing_user = session.exec(
         select(User).where(User.id == cart_item.user_id)
     ).first()
@@ -30,7 +34,11 @@ async def add_to_cart(cart_item: CartModel, session: SessionDep):
 
 
 @router.put("/cart/", tags=["cart"])
-async def update_cart_item(cart_item: CartChange, session: SessionDep):
+async def update_cart_item(
+    cart_item: CartChange,
+    session: SessionDep,
+    current_user: User = Depends(get_current_user),
+):
     existing_cart_item = session.get(Cart, cart_item.id)
     if not existing_cart_item:
         raise HTTPException(status_code=404, detail="Cart item not found")
@@ -48,7 +56,11 @@ async def update_cart_item(cart_item: CartChange, session: SessionDep):
 
 
 @router.delete("/cart/", tags=["cart"])
-async def delete_cart_item(cart_item: CartDelete, session: SessionDep):
+async def delete_cart_item(
+    cart_item: CartDelete,
+    session: SessionDep,
+    current_user: User = Depends(get_current_user),
+):
     existing_cart_item = session.get(Cart, cart_item.id)
     if not existing_cart_item:
         raise HTTPException(status_code=404, detail="Cart item not found")
@@ -59,6 +71,8 @@ async def delete_cart_item(cart_item: CartDelete, session: SessionDep):
 
 
 @router.get("/cart/", tags=["cart"])
-async def list_cart_items(session: SessionDep):
+async def list_cart_items(
+    session: SessionDep, current_user: User = Depends(get_current_user)
+):
     cart_items = session.exec(select(Cart)).all()
     return cart_items
