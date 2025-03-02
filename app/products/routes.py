@@ -1,6 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from sqlmodel import select
-from dependencies import SessionDep
+from dependencies import SessionDep, get_current_user
 from products.models import Product, ProductModel, ProductChange, ProductDelete
 
 from users.models import User
@@ -10,7 +10,11 @@ router = APIRouter()
 
 
 @router.post("/products/", tags=["products"])
-async def create_product(product: ProductModel, session: SessionDep):
+async def create_product(
+    product: ProductModel,
+    session: SessionDep,
+    current_user: User = Depends(get_current_user),
+):
     existing_user = session.exec(select(User).where(User.id == product.user_id)).first()
 
     if not existing_user:
@@ -24,7 +28,11 @@ async def create_product(product: ProductModel, session: SessionDep):
 
 
 @router.put("/products/", tags=["products"])
-async def update_product(product: ProductChange, session: SessionDep):
+async def update_product(
+    product: ProductChange,
+    session: SessionDep,
+    current_user: User = Depends(get_current_user),
+):
     existing_product = session.get(Product, product.id)
     if not existing_product:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -39,7 +47,11 @@ async def update_product(product: ProductChange, session: SessionDep):
 
 
 @router.delete("/products/", tags=["products"])
-async def delete_product(product: ProductDelete, session: SessionDep):
+async def delete_product(
+    product: ProductDelete,
+    session: SessionDep,
+    current_user: User = Depends(get_current_user),
+):
     existing_product = session.get(Product, product.id)
     if not existing_product:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -50,6 +62,8 @@ async def delete_product(product: ProductDelete, session: SessionDep):
 
 
 @router.get("/products/", tags=["products"])
-async def list_products(session: SessionDep):
+async def list_products(
+    session: SessionDep, current_user: User = Depends(get_current_user)
+):
     products = session.exec(select(Product)).all()
     return products

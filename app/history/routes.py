@@ -1,6 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from sqlmodel import select
-from dependencies import SessionDep
+from dependencies import SessionDep, get_current_user
 from history.models import History, HistoryModel, HistoryChange
 from users.models import User
 from products.models import Product
@@ -9,7 +9,11 @@ router = APIRouter()
 
 
 @router.post("/history/", tags=["history"])
-async def add_history_item(history_item: HistoryModel, session: SessionDep):
+async def add_history_item(
+    history_item: HistoryModel,
+    session: SessionDep,
+    current_user: User = Depends(get_current_user),
+):
     existing_user = session.exec(
         select(User).where(User.id == history_item.user_id)
     ).first()
@@ -33,7 +37,11 @@ async def add_history_item(history_item: HistoryModel, session: SessionDep):
 
 
 @router.put("/history/", tags=["history"])
-async def update_history_item(history_item: HistoryChange, session: SessionDep):
+async def update_history_item(
+    history_item: HistoryChange,
+    session: SessionDep,
+    current_user: User = Depends(get_current_user),
+):
     existing_history_item = session.get(History, history_item.id)
     if not existing_history_item:
         raise HTTPException(status_code=404, detail="History item not found")
@@ -51,6 +59,8 @@ async def update_history_item(history_item: HistoryChange, session: SessionDep):
 
 
 @router.get("/history/", tags=["history"])
-async def list_history_items(session: SessionDep):
+async def list_history_items(
+    session: SessionDep, current_user: User = Depends(get_current_user)
+):
     history_items = session.exec(select(History)).all()
     return history_items

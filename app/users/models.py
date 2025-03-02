@@ -6,6 +6,7 @@ class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     username: str = Field(unique=True, index=True)
     password: str
+    token: str | None = None  # Add this line to include the token field
 
 
 class UserModel(BaseModel):

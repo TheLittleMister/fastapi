@@ -1,6 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from sqlmodel import select
-from dependencies import SessionDep
+from dependencies import SessionDep, get_current_user
 from stores.models import Store, StoreModel, StoreChange, StoreDelete
 from users.models import User
 
@@ -8,7 +8,11 @@ router = APIRouter()
 
 
 @router.post("/stores/", tags=["stores"])
-async def create_store(store: StoreModel, session: SessionDep):
+async def create_store(
+    store: StoreModel,
+    session: SessionDep,
+    current_user: User = Depends(get_current_user),
+):
     existing_user = session.exec(select(User).where(User.id == store.user_id)).first()
 
     if not existing_user:
@@ -22,7 +26,11 @@ async def create_store(store: StoreModel, session: SessionDep):
 
 
 @router.put("/stores/", tags=["stores"])
-async def update_store(store: StoreChange, session: SessionDep):
+async def update_store(
+    store: StoreChange,
+    session: SessionDep,
+    current_user: User = Depends(get_current_user),
+):
     existing_store = session.get(Store, store.id)
     if not existing_store:
         raise HTTPException(status_code=404, detail="Store not found")
@@ -37,7 +45,11 @@ async def update_store(store: StoreChange, session: SessionDep):
 
 
 @router.delete("/stores/", tags=["stores"])
-async def delete_store(store: StoreDelete, session: SessionDep):
+async def delete_store(
+    store: StoreDelete,
+    session: SessionDep,
+    current_user: User = Depends(get_current_user),
+):
     existing_store = session.get(Store, store.id)
     if not existing_store:
         raise HTTPException(status_code=404, detail="Store not found")
@@ -48,6 +60,8 @@ async def delete_store(store: StoreDelete, session: SessionDep):
 
 
 @router.get("/stores/", tags=["stores"])
-async def list_stores(session: SessionDep):
+async def list_stores(
+    session: SessionDep, current_user: User = Depends(get_current_user)
+):
     stores = session.exec(select(Store)).all()
     return stores
