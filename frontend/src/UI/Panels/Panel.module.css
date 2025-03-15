@@ -1,0 +1,9 @@
+.panel {
+  /*background: var(--main-bg-color);*/
+  /* background: linear-gradient(
+    180deg,
+    var(--bg-color) 25%,
+    var(--blue-color) 75%,
+    var(--bg-color) 25%
+  ); */
+}

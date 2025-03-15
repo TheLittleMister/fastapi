@@ -1,0 +1,13 @@
+.navbar {
+  background-color: "transparent";
+  background-image: radial-gradient(
+    var(--main-bg-color) 0.1px,
+    var(--main-font-color) 0.9px
+  ) !important;
+  background-size: 4px 4px;
+  backdrop-filter: blur(10px);
+
+  mask: linear-gradient(rgb(0, 0, 0) 95%, rgba(0, 0, 0, 0) 100%);
+
+  opacity: 1;
+}
